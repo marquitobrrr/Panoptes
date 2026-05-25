@@ -14,41 +14,39 @@ La arquitectura es **Híbrida (Local + Cloud)**, conectada mediante una **VPN Me
 ---
 
 ## 2. Estado Actual de la Infraestructura (Lo que YA hemos hecho)
-Hasta este momento, hemos consolidado la capa base (Infraestructura y Orquestación) en el **Nodo Central (On-Premises)**.
+Hasta este momento, hemos consolidado la capa base (Infraestructura y Orquestación) en el **Nodo Central (On-Premises)** y resuelto la conectividad remota.
 
 * **Sistema Operativo:** Debian 13 (Trixie) Minimal/Headless instalado y securizado.
-* **Red (Dual-NIC resuelta):** * `ens32` (NAT): Salida a Internet y futura conexión a APIs (DHCP).
-  * `ens34` (Host-Only): Interfaz de administración local aislada. Configurada con IP estática `192.168.245.10` para acceso SSH directo desde el equipo host.
-* **Motor de Contenedores:** Instalado Docker CE v29.5 (oficial), incluyendo integración nativa de `docker compose` y el motor de compilación `BuildKit`. Usuario administrador añadido al grupo `docker`.
-* **Estructura del Repositorio:** Creadas las carpetas `frontend/`, `backend/` y `database_data/`.
-* **Prueba de Concepto (PoC) del Stack:** * Se ha creado un `docker-compose.yml` base definiendo la red `argus-network` (bridge).
-  * Se ha levantado un contenedor `frontend` temporal usando `nginx:alpine` y un `index.html` estático para validar la redirección de puertos (Puerto 80 expuesto y funcionando).
-* **Entorno de Desarrollo:** IDE (Antigravity) configurado con git local, enrutamiento automático de imágenes a la carpeta `/caps/` y soporte Markdown completo.
+* **Red y Conectividad (VPN Mesh):** 
+  * `ens32` (NAT): Salida a Internet.
+  * `ens34` (Host-Only): Interfaz local aislada.
+  * **Solución Tailscale:** Desplegada la red superpuesta (`tailscale0`) asignando IP global privada (`100.x.x.x`) al servidor Debian, permitiendo acceso SSH remoto directo y eludiendo las restricciones de NAT/Cortafuegos que impedían el teletrabajo.
+* **Motor de Contenedores:** Instalado Docker CE v29.5 (oficial) con `docker compose` y `BuildKit`.
+* **Fase 1 - Control Plane (Backend & DB):**
+  * Desplegado orquestador `docker-compose.yml` final.
+  * Levantado contenedor de **InfluxDB** (TSDB) mapeado a volumen local `database_data/` para persistencia.
+  * Creado y desplegado el **Core Backend (Argus Eyes)** en Python 3.11 con FastAPI y Pydantic.
+  * Programados endpoints iniciales (`/health` y base de `/api/telemetry`) y validado acceso funcional a través de la interfaz gráfica Swagger UI.
+* **Fase 3 - Agentes de Telemetría (Parcial):**
+  * Desarrollado el script base `agent_core.py` en Python (`psutil`, `requests`) para la extracción de CPU y RAM.
+  * Validada la transmisión de telemetría local (Windows) y desplegado exitosamente el agente en el propio nodo Debian (`argus-server`) estableciendo la auto-monitorización del Control Plane.
 
 ---
 
 ## 3. Roadmap Arquitectónico (Lo que QUEDA por hacer)
 El agente asistente debe guiar al usuario para completar los siguientes hitos de forma iterativa:
 
-### Fase 1: Completar el Control Plane (Backend & Base de Datos)
-1. **Base de Datos (InfluxDB):** Añadir un contenedor de InfluxDB al `docker-compose.yml` para almacenar la telemetría (Series Temporales). Configurar volúmenes persistentes en `database_data/`.
-2. **Core Backend (Python/FastAPI):** * Crear el contenedor del backend.
-   * Programar los endpoints REST para recibir los JSON de los agentes.
-   * Integrar el SDK de Azure (`azure-mgmt-compute`) para habilitar la ejecución de acciones remotas.
-3. **Frontend Real (React):** Reemplazar el contenedor Nginx temporal por una aplicación SPA (React o Vue) que consuma la API del backend para dibujar los gráficos y alertas.
-
-### Fase 2: Conectividad y VPN Mesh
-1. Instalar y configurar **Tailscale/WireGuard** en el nodo Debian para obtener una IP de la red superpuesta (rango `100.x.x.x`).
-2. Validar que el servidor puede recibir tráfico a través de esta interfaz segura.
+### Fase 1: Completar el Control Plane (Frontend)
+1. **Frontend Real (React):** Crear la aplicación SPA real (con React/Vite) e integrarla al orquestador Docker para que consuma la API del backend y sirva el panel visual (Dashboard) final.
 
 ### Fase 3: Despliegue Cloud (Azure) y Agentes
 1. Levantar la infraestructura en Azure: 1 VM Ubuntu, 1 VM Windows Server, 1 VM Alpine (Generador de tráfico).
 2. Unir estas máquinas a la red Tailscale.
-3. Escribir los scripts agentes (Python o Bash/PowerShell) para estas máquinas, que envíen un payload JSON cada 5-10 segundos al Nodo Central.
+3. Desplegar el script agente (ya desarrollado localmente) en estas máquinas para que inyecten telemetría continua al Nodo Central.
 
 ### Fase 4: Lógica de Alertas (Argus Eyes)
-1. Programar la lógica en el backend que evalúe continuamente los datos de InfluxDB.
-2. Probar un escenario de mitigación: Detectar alto consumo o logs SSH fallidos y enviar comando de apagado vía API de Azure.
+1. Programar la lógica en el backend que evalúe continuamente los datos de InfluxDB frente a umbrales de seguridad.
+2. Probar un escenario de mitigación real: Detectar alto consumo o intrusión y enviar un comando de apagado de emergencia (vía API de Azure utilizando los paquetes ya instalados `azure-mgmt-compute` y `azure-identity`).
 
 ---
 **FIN DEL CONTEXTO.** *Instrucción para el Agente: Utiliza toda esta información para dar respuestas contextualizadas, precisas y enfocadas en la arquitectura definida cuando el usuario pida código, configuraciones o troubleshooting.*
