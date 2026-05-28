@@ -4,17 +4,33 @@ import './index.css'
 function App() {
   const [telemetry, setTelemetry] = useState(null)
   
-  // En la Fase final, esto atacará al backend de Python
-  // Por ahora, simulamos datos entrantes para poder diseñar el panel
+  // Efecto que lee datos reales del backend cada 2 segundos
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTelemetry({
-        node_id: 'ARGUS-SERVER-CORE',
-        os_type: 'Linux',
-        cpu_usage: Math.floor(Math.random() * (40 - 10 + 1) + 10), // Random 10-40%
-        ram_usage: Math.floor(Math.random() * (70 - 60 + 1) + 60), // Random 60-70%
-      })
-    }, 2000)
+    const fetchTelemetry = async () => {
+      try {
+        // En un entorno de producción, la IP no debe estar hardcodeada,
+        // pero para nuestro servidor local Debian de TFM en la VPN Tailscale usamos esta:
+        const response = await fetch('http://100.115.255.119:8000/api/telemetry/latest')
+        const data = await response.json()
+        
+        // Data es un array de nodos. Por ahora cogemos el primero (si hay)
+        if (data && data.length > 0) {
+          setTelemetry({
+            node_id: data[0].node_id || 'Unknown',
+            os_type: data[0].os_type || 'Unknown',
+            cpu_usage: Math.round(data[0].cpu_usage) || 0,
+            ram_usage: Math.round(data[0].ram_usage) || 0,
+          })
+        }
+      } catch (error) {
+        console.error("Error fetching telemetry:", error)
+      }
+    }
+
+    // Llamar inmediatamente y luego cada 2 segundos
+    fetchTelemetry()
+    const interval = setInterval(fetchTelemetry, 2000)
+    
     return () => clearInterval(interval)
   }, [])
 
