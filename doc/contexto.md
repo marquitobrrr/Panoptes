@@ -26,7 +26,9 @@ Hasta este momento, hemos consolidado la capa base (Infraestructura y Orquestaci
   * Desplegado orquestador `docker-compose.yml` final.
   * Levantado contenedor de **InfluxDB** (TSDB) mapeado a volumen local `database_data/` para persistencia.
   * Creado y desplegado el **Core Backend (Argus Eyes)** en Python 3.11 con FastAPI y Pydantic.
-  * Programados endpoints iniciales (`/health` y base de `/api/telemetry`) y validado acceso funcional a través de la interfaz gráfica Swagger UI.
+  * Programados endpoints iniciales y escritura en DB.
+  * Desarrollado el panel Frontend interactivo en React/Vite.
+  * **Conectado End-to-End:** Agente -> Backend -> InfluxDB -> Frontend. Orquestación completa lista.
 * **Fase 3 - Agentes de Telemetría (Parcial):**
   * Desarrollado el script base `agent_core.py` en Python (`psutil`, `requests`) para la extracción de CPU y RAM.
   * Validada la transmisión de telemetría local (Windows) y desplegado exitosamente el agente en el propio nodo Debian (`argus-server`) estableciendo la auto-monitorización del Control Plane.
@@ -37,7 +39,7 @@ Hasta este momento, hemos consolidado la capa base (Infraestructura y Orquestaci
 El agente asistente debe guiar al usuario para completar los siguientes hitos de forma iterativa:
 
 ### Fase 1: Completar el Control Plane (Frontend)
-1. **Frontend Real (React):** Crear la aplicación SPA real (con React/Vite) e integrarla al orquestador Docker para que consuma la API del backend y sirva el panel visual (Dashboard) final.
+✅ **Fase Completada:** El panel visual, el backend y la base de datos están dockerizados, conectados y funcionando en tiempo real en el nodo central.
 
 ### Fase 3: Despliegue Cloud (Azure) y Agentes
 1. Levantar la infraestructura en Azure: 1 VM Ubuntu, 1 VM Windows Server, 1 VM Alpine (Generador de tráfico).

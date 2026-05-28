@@ -26,6 +26,9 @@ client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 query_api = client.query_api()
 
+# Memoria temporal para Alertas SIEM (Argus Eyes)
+siem_alerts = []
+
 class Telemetry(BaseModel):
     node_id: str
     os_type: str = "Unknown"
@@ -40,6 +43,32 @@ def read_health():
 @app.post("/api/telemetry")
 def receive_telemetry(payload: Telemetry):
     print(f"Telemetría recibida de {payload.node_id} | CPU: {payload.cpu_usage}%")
+    
+    # Argus Eyes Policy Engine: Evaluación de umbrales
+    import datetime
+    if payload.cpu_usage > 85.0:
+        alert = {
+            "id": f"ALRT-{datetime.datetime.now().timestamp()}",
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "node_id": payload.node_id,
+            "severity": "CRITICAL",
+            "message": f"Sobrecarga de CPU detectada ({payload.cpu_usage}%)"
+        }
+        siem_alerts.insert(0, alert)
+        if len(siem_alerts) > 50:
+            siem_alerts.pop()
+            
+    if payload.ram_usage > 90.0:
+        alert = {
+            "id": f"ALRT-{datetime.datetime.now().timestamp()}",
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "node_id": payload.node_id,
+            "severity": "WARNING",
+            "message": f"Consumo de RAM elevado ({payload.ram_usage}%)"
+        }
+        siem_alerts.insert(0, alert)
+        if len(siem_alerts) > 50:
+            siem_alerts.pop()
     
     # Escribir el punto de datos en InfluxDB
     point = (
@@ -56,6 +85,10 @@ def receive_telemetry(payload: Telemetry):
     except Exception as e:
         print(f"Error InfluxDB: {e}")
         return {"status": "error", "message": str(e)}
+
+@app.get("/api/alerts")
+def get_alerts():
+    return siem_alerts
 
 @app.get("/api/telemetry/latest")
 def get_latest_telemetry():
