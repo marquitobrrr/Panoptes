@@ -33,6 +33,23 @@ services:
       - argus-network
     restart: unless-stopped
 
+  frontend:
+    build:
+      context: ./frontend
+    container_name: argus-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      # Montamos el código fuente para poder editarlo en caliente
+      - ./frontend:/app
+      # Evitamos que la carpeta vacía de Windows sobreescriba los node_modules del contenedor
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - argus-network
+    restart: unless-stopped
+
 networks:
   argus-network:
     driver: bridge
