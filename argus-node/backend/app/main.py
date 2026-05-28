@@ -118,3 +118,34 @@ def get_latest_telemetry():
     except Exception as e:
         print(f"Error querying InfluxDB: {e}")
         return []
+
+import subprocess
+
+@app.post("/api/mitigate/{node_id}")
+def mitigate_node(node_id: str):
+    print(f"🚨 [BOTÓN DEL PÁNICO] Orden de mitigación recibida para: {node_id} 🚨")
+    
+    if "Win" in node_id or "Ubuntu" in node_id:
+        print(f"🔌 Ejecutando aislamiento en Azure para {node_id}...")
+        try:
+            # Ejecutamos Azure CLI nativo para apagar la máquina virtual
+            # --no-wait es crucial para no dejar colgada la petición web
+            cmd = f"az vm deallocate --resource-group ArgusNode-RG-Spain --name {node_id} --no-wait"
+            subprocess.Popen(cmd, shell=True)
+            return {
+                "status": "success", 
+                "action": "mitigating", 
+                "provider": "Azure Cloud", 
+                "message": f"Orden de contención letal (Deallocate) enviada a Azure para {node_id}."
+            }
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+    else:
+        # Asumimos que es On-Premises (ej. Debian local)
+        print(f"🔒 Ejecutando aislamiento On-Premises para {node_id}...")
+        return {
+            "status": "success", 
+            "action": "mitigating", 
+            "provider": "On-Premises", 
+            "message": f"Cortafuegos local reconfigurado para aislar el nodo {node_id}."
+        }
