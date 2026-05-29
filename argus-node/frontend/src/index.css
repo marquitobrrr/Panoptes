@@ -1,4 +1,4 @@
-/* Sistema de Diseño: Argus Premium Dark Mode */
+/* Design System: Argus Premium Dark Mode */
 :root {
   --bg-base: #060913;
   --bg-sidebar: #0a0f1d;
@@ -25,17 +25,17 @@ body {
   font-family: var(--font-main);
   background-color: var(--bg-base);
   color: var(--text-primary);
-  overflow: hidden; /* Evita scroll en el layout principal */
+  overflow: hidden; /* Prevent scroll on main layout */
 }
 
-/* Layout Principal */
+/* Main Layout */
 .dashboard-container {
   display: flex;
   height: 100vh;
   width: 100vw;
 }
 
-/* --- Barra Lateral --- */
+/* --- Sidebar --- */
 .sidebar {
   width: 260px;
   background-color: var(--bg-sidebar);
@@ -98,7 +98,7 @@ body {
   border-left: 3px solid var(--accent-blue);
 }
 
-/* --- Contenido Principal --- */
+/* --- Main Content --- */
 .main-content {
   flex: 1;
   padding: 2rem 4rem;
@@ -129,7 +129,7 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* --- Grid de Métricas --- */
+/* --- Metrics Grid --- */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -194,7 +194,7 @@ body {
   background: linear-gradient(90deg, #8b5cf6, #ec4899);
 }
 
-/* Animaciones */
+/* Animations */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
@@ -361,4 +361,236 @@ body {
 .sidebar-footer .version {
   color: var(--accent-blue);
   margin-top: 0.2rem;
+}
+
+/* --- Phase 5: Advanced UI Styles --- */
+
+.controls-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.search-input, .filter-select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-family: var(--font-main);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.search-input:focus, .filter-select:focus {
+  border-color: var(--accent-blue);
+}
+
+.filter-select {
+  width: 200px;
+}
+
+.filter-select option {
+  background: var(--bg-sidebar);
+  color: var(--text-primary);
+}
+
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.node-card {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.node-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+
+.node-card:hover::before {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.node-card.expanded {
+  grid-column: 1 / -1;
+  cursor: default;
+}
+.node-card.expanded:hover::before {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.expanded-content {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-glass);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.forensic-panel h4 {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.process-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.process-table th {
+  text-align: left;
+  color: var(--text-secondary);
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border-glass);
+  font-weight: 500;
+}
+
+.process-table td {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+
+.network-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.net-box {
+  background: rgba(0,0,0,0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  text-align: center;
+}
+
+.net-box span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.net-box strong {
+  font-size: 1.2rem;
+  color: var(--accent-cyan);
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.close-btn:hover {
+  background: rgba(239, 68, 68, 0.8);
+}
+
+/* --- Phase 7: SIEM Alerts Tabs & Actions --- */
+.alerts-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 1rem;
+}
+
+.alert-tab {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--font-main);
+  transition: all 0.3s;
+}
+
+.alert-tab:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.alert-tab.active {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue);
+}
+
+.alert-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.action-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+}
+
+.action-btn.pin-btn:hover, .alert-item.pinned .pin-btn {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.action-btn.trash-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.action-btn.restore-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.alert-item.pinned {
+  border-left: 2px solid #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
 }
